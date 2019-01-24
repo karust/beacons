@@ -33,14 +33,13 @@ def parseUrl(url):
 
 def eddystone(url):
 
-  txPower = "e7"
   namespaceID = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09"]
   instanceID =  [ "01", "02", "03", "04", "05", "06"]
 
   sb.run(common+["1e", 
   "02", # Length
   "01", # Flags data type value
-  "06", # Flags data
+  "1a", # Flags data
   "03", # Length
   "03", # Complete list of 16-bit Service UUIDs data type value
   "aa", # 16-bit Eddystone UUID
@@ -50,7 +49,7 @@ def eddystone(url):
   "aa", # 16-bit Eddystone UUID
   "fe", # 16-bit Eddystone UUID
   "10", # Frame Type = URL(0x10), IDs(0x00)
-  txPower]
+  "d1"] # txPower
   + url
   #       + namespaceID
   #       + instanceID
@@ -59,16 +58,39 @@ def eddystone(url):
 
 
 def ibeacon():
-  sb.run(common+["1E", "02", "01", "1A", "1A", "FF", "4C", "00",
-          "02", "15", "FB", "0B", "57", "A2", "82", "28", "44", "CD", "91", "3A", "94", "A1", "22", "BA", "12",
-          "06", "00", "01", "00", "02", "D1", "00"]) 
+
+  proximityUUID = ["FB", "0B", "57", "A2", "82", "28", "44", "CD", "91", "3A", 
+  "94", "A1", "22", "BA", "12", "06"]
+
+  sb.run(common+["1E",
+  "02",       # Length
+  "01",       # Type (Flags)
+  "1A",       # Value (Typical Flags) 
+  "1A",       # Length БЦ Манхеттен
+  "FF",       # Type (Custom Manufacturer Packet)
+  "4C", "00", # Manufacturer ID
+  "02",       # SubType (iBeacon)
+  "15",       # SubType Length
+  ] + proximityUUID + [
+  "00", "01", # Major
+  "00", "02", # Minor
+  "D1", "00"])# Signal Power      
   print("IBeacon is running")
 
 
 def altbeacon():
+
+  beaconID = ["00", "00", "00", "00", "00", "00", "00", "00", "00", "00", "00",
+            "00", "00", "00", "00", "00", "00", "01", "00", "01",]
+
   adFlags = ["02", "01", "1a"]
-  advert = ["1b", "ff", "18", "01", "be", "ac", "00", "00", "00", "00", "00", "00", "00", "00", "00", "00", "00",
-            "00", "00", "00", "00", "00", "00", "01", "00", "01", "c5", "01"]
+  advert = ["1b",  # AD LENGTH 
+  "ff",            # AD TYPE 
+  "18", "01",      # MFG ID
+  "be", "ac",      # BEACON CODE
+  ] + beaconID + [
+  "c5",            # REFERENCE RSSI
+  "01"]            # MFG RESERVED
   adLen = [str(hex(len(adFlags+advert))[2:])]
 
   sb.run(common + adLen + adFlags + advert) 
