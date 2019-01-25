@@ -98,7 +98,12 @@ def altbeacon():
 
 
 if __name__ == "__main__":
-    
+  
+  # Should be run as root
+  sb.run(["hciconfig", "hci0", "up"]) 
+  sb.run(["hciconfig", "hci0", "leadv", "3"]) 
+  sb.run(["hciconfig", "hci0", "noscan"]) 
+  
   while True:
     print("""Chose beacon: 1) Eddystone; 2) IBeacon; 3) AltBeacon""")
     raw = input(">>")
@@ -117,4 +122,3 @@ if __name__ == "__main__":
       ibeacon()
     elif "3" in raw:
       altbeacon()
-  
